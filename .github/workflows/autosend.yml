@@ -27,7 +27,6 @@ jobs:
         run: echo "Last active: $(date -u)" > .keepalive.log
 
       # ✅ Step 4. 提交并推送（防止仓库被判定不活跃）
-        # 如果内容没变则不会报错
       - name: Commit and push keepalive file
         run: |
           git config --global user.name "github-actions[bot]"
