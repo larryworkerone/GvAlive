@@ -9,24 +9,23 @@ on:
 jobs:
   send-message:
     runs-on: ubuntu-latest
-
     steps:
-      # ✅ Step 1. 发送 GroupMe 消息（保持原功能）
+      # Step 1. 发送 GroupMe 消息（保持原功能）
       - name: Send GroupMe Message
         run: |
-          curl -X POST https://api.groupme.com/v3/bots/post \
+          curl -X POST "https://api.groupme.com/v3/bots/post" \
             -H "Content-Type: application/json" \
-            -d "{\"text\": \"keepGV active\", \"bot_id\": \"${{ secrets.GM_BOT_ID }}\"}"
+            -d "{\"text\":\"keepGV active\",\"bot_id\":\"${{ secrets.GM_BOT_ID }}\"}"
 
-      # ✅ Step 2. 检出仓库（为了后续提交文件）
+      # Step 2. 检出仓库（为了后续提交文件）
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ Step 3. 写入时间戳文件（制造“仓库活动”）
+      # Step 3. 写入时间戳文件（制造“仓库活动”）
       - name: Update keepalive log
         run: echo "Last active: $(date -u)" > .keepalive.log
 
-      # ✅ Step 4. 提交并推送（防止仓库被判定不活跃）
+      # Step 4. 提交并推送（防止仓库被判定不活跃）
       - name: Commit and push keepalive file
         run: |
           git config --global user.name "github-actions[bot]"
