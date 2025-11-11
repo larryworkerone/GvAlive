@@ -10,26 +10,26 @@ jobs:
   send-message:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: 发送 GroupMe 消息
       - name: Send GroupMe Message
         run: |
           curl -X POST "https://api.groupme.com/v3/bots/post" \
             -H "Content-Type: application/json" \
             -d "{\"text\":\"keepGV active\",\"bot_id\":\"${{ secrets.GM_BOT_ID }}\"}"
 
-      # Step 2: 检出仓库
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 3: 写入 keepalive 文件
-      - name: Update keepalive log
-        run: echo "Last active: $(date -u)" > .keepalive.log
+      - name: Create hidden keepalive folder
+        run: mkdir -p .github/.keepalive
 
-      # Step 4: 提交并推送
+      - name: Update keepalive log
+        run: |
+          echo "Last active: $(date -u)" > .github/.keepalive/keepalive.log
+
       - name: Commit and push keepalive file
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .keepalive.log
+          git add .github/.keepalive/keepalive.log
           git commit -m "chore: keepalive $(date -u)" || echo "No changes to commit"
           git push
