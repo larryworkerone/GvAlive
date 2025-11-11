@@ -2,16 +2,36 @@ name: "GvAlive"
 
 on:
   schedule:
-    - cron: '30 0 */5 * *'  # 每5天的 UTC 00:30 执行一次（北京时间 08:30）
-  workflow_dispatch:        # 允许手动触发
+    # 每5天执行一次，UTC 00:30（北京时间 08:30）
+    - cron: '30 0 */5 * *'
+  workflow_dispatch:  # 支持手动触发
 
 jobs:
   send-message:
     runs-on: ubuntu-latest
 
     steps:
+      # ✅ Step 1. 发送 GroupMe 消息（保持原功能）
       - name: Send GroupMe Message
         run: |
           curl -X POST https://api.groupme.com/v3/bots/post \
             -H "Content-Type: application/json" \
             -d "{\"text\": \"keepGV active\", \"bot_id\": \"${{ secrets.GM_BOT_ID }}\"}"
+
+      # ✅ Step 2. 检出仓库（为了后续提交文件）
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ✅ Step 3. 写入时间戳文件（制造“仓库活动”）
+      - name: Update keepalive log
+        run: echo "Last active: $(date -u)" > .keepalive.log
+
+      # ✅ Step 4. 提交并推送（防止仓库被判定不活跃）
+        # 如果内容没变则不会报错
+      - name: Commit and push keepalive file
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .keepalive.log
+          git commit -m "chore: keepalive $(date -u)" || echo "No changes to commit"
+          git push
